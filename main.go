@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net"
 	"net/http"
@@ -21,21 +21,25 @@ type PodInfo struct {
 	NodeName       string
 	NodeIP         string
 	Info           map[string]string
-	Now            time.Time
+	Now            string
 }
 
 var (
 	podInfo PodInfo
 	ips     []string
+	t       *template.Template
 )
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
-	podInfo.Now = time.Now()
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(podInfo)
+	podInfo.Now = time.Now().Format(time.RFC3339Nano)
+	err := t.Execute(w, podInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func init() {
+	t = template.Must(template.New("index").Parse(htmlTemplate))
 	podInfo = PodInfo{
 		Name:           os.Getenv("POD_NAME"),
 		Namespace:      os.Getenv("POD_NAMESPACE"),
