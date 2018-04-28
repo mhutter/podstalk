@@ -2,6 +2,19 @@
 
 Container that displays informations about the Pod it's running on.
 
+## Usage
+
+    kubectl apply -f https://github.com/mhutter/podstalk/raw/master/kube/daemonset.yml
+
+Will create a daemonset running `mhutter/podstalk` and a service named
+`podstalk`.
+
+### Customization
+
+The following env vars can be set to customize Podstalk:
+
+* `TITLE` (_default: `Podstalk`_) - `<title>` of the HTML page
+
 ## To do
 
 - access log

@@ -4,7 +4,7 @@ const htmlTemplate = `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Podstalk</title>
+  <title>{{ .Title }}</title>
   <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
   <style type="text/css">
     html, body {

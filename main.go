@@ -22,6 +22,7 @@ type PodInfo struct {
 	NodeIP         string
 	Info           map[string]string
 	Now            string
+	Title          string
 }
 
 var (
@@ -47,6 +48,7 @@ func init() {
 		ServiceAccount: os.Getenv("POD_SA"),
 		NodeName:       os.Getenv("NODE_NAME"),
 		NodeIP:         os.Getenv("NODE_IP"),
+		Title:          getEnvOr("TITLE", "Podstalk"),
 	}
 	collectIPs()
 	collectEnv()
@@ -92,11 +94,15 @@ func collectIPs() {
 	}
 }
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+func getEnvOr(name, fallback string) string {
+	if val := os.Getenv(name); val != "" {
+		return val
 	}
+	return fallback
+}
+
+func main() {
+	port := getEnvOr("PORT", "8080")
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%s", port),
 		Handler:        http.HandlerFunc(infoHandler),
