@@ -7,33 +7,47 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 )
 
 var (
-	hostname string
-	ips      []string
+	podInfo = map[string]interface{}{}
+	ips     []string
 )
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
-	responseData := map[string]interface{}{
-		"hostname": hostname,
-		"ips":      ips,
-	}
-
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(responseData)
+	json.NewEncoder(w).Encode(podInfo)
 }
 
 func init() {
-	var err error
-	hostname, err = os.Hostname()
+	collectHostname()
+	collectIPs()
+	collectInfo()
+}
+
+func collectInfo() {
+	pattern := regexp.MustCompile("^info_([^=]+)=(.+)$")
+	info := map[string]string{}
+
+	for _, line := range os.Environ() {
+		l := strings.ToLower(line)
+		if m := pattern.FindStringSubmatch(l); m != nil {
+			info[m[1]] = m[2]
+		}
+	}
+
+	podInfo["info"] = info
+}
+
+func collectIPs() {
+	interfaces, err := net.Interfaces()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	interfaces, err := net.Interfaces()
-	// handle err
 	for _, i := range interfaces {
 		addrs, err := i.Addrs()
 		if err != nil {
@@ -53,9 +67,15 @@ func init() {
 		}
 	}
 
-	for _, element := range os.Environ() {
-		fmt.Println(element)
+	podInfo["ips"] = ips
+}
+
+func collectHostname() {
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
 	}
+	podInfo["hostname"] = hostname
 }
 
 func main() {
