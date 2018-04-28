@@ -21,6 +21,7 @@ type PodInfo struct {
 	NodeName       string
 	NodeIP         string
 	Info           map[string]string
+	Now            time.Time
 }
 
 var (
@@ -29,6 +30,7 @@ var (
 )
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
+	podInfo.Now = time.Now()
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(podInfo)
 }
