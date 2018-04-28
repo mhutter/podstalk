@@ -12,8 +12,19 @@ import (
 	"time"
 )
 
+// PodInfo contains all interesting information about a pod
+type PodInfo struct {
+	Name           string
+	Namespace      string
+	IP             string
+	ServiceAccount string
+	NodeName       string
+	NodeIP         string
+	Info           map[string]string
+}
+
 var (
-	podInfo = map[string]interface{}{}
+	podInfo PodInfo
 	ips     []string
 )
 
@@ -23,12 +34,19 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	collectHostname()
+	podInfo = PodInfo{
+		Name:           os.Getenv("POD_NAME"),
+		Namespace:      os.Getenv("POD_NAMESPACE"),
+		IP:             os.Getenv("POD_IP"),
+		ServiceAccount: os.Getenv("POD_SA"),
+		NodeName:       os.Getenv("NODE_NAME"),
+		NodeIP:         os.Getenv("NODE_IP"),
+	}
 	collectIPs()
-	collectInfo()
+	collectEnv()
 }
 
-func collectInfo() {
+func collectEnv() {
 	pattern := regexp.MustCompile("^info_([^=]+)=(.+)$")
 	info := map[string]string{}
 
@@ -39,7 +57,7 @@ func collectInfo() {
 		}
 	}
 
-	podInfo["info"] = info
+	podInfo.Info = info
 }
 
 func collectIPs() {
@@ -66,16 +84,6 @@ func collectIPs() {
 			}
 		}
 	}
-
-	podInfo["ips"] = ips
-}
-
-func collectHostname() {
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
-	podInfo["hostname"] = hostname
 }
 
 func main() {
