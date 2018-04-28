@@ -23,20 +23,26 @@ type PodInfo struct {
 	Info           map[string]string
 	Now            string
 	Title          string
+	Siblings       []string
 }
 
 var (
 	podInfo PodInfo
 	ips     []string
+	client  *K8sClient
 	t       *template.Template
 )
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
-	podInfo.Now = time.Now().Format(time.RFC3339Nano)
-	err := t.Execute(w, podInfo)
-	if err != nil {
-		log.Fatal(err)
+	p := podInfo
+	p.Now = time.Now().Format(time.RFC3339Nano)
+
+	for _, pod := range client.ListPods().Items {
+		p.Siblings = append(p.Siblings, pod.Metadata.Name)
 	}
+
+	err := t.Execute(w, p)
+	check(err)
 }
 
 func init() {
@@ -50,6 +56,7 @@ func init() {
 		NodeIP:         os.Getenv("NODE_IP"),
 		Title:          getEnvOr("TITLE", "Podstalk"),
 	}
+	client = NewClient()
 	collectIPs()
 	collectEnv()
 }
@@ -70,15 +77,11 @@ func collectEnv() {
 
 func collectIPs() {
 	interfaces, err := net.Interfaces()
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 
 	for _, i := range interfaces {
 		addrs, err := i.Addrs()
-		if err != nil {
-			log.Fatal(err)
-		}
+		check(err)
 		for _, addr := range addrs {
 			var ip net.IP
 			switch v := addr.(type) {
@@ -114,4 +117,10 @@ func main() {
 		log.Printf("Listening on http://%s:%s/\n", ip, port)
 	}
 	log.Fatal(s.ListenAndServe())
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -44,6 +44,19 @@ const htmlTemplate = `<!doctype html>
     <p>
       The current time is <strong>{{ .Now }}</strong>, plus/minus a bit.
     </p>
+{{ if .Siblings }}
+	<h3>Siblings</h3>
+	{{ if (len .Siblings) gt 1 }}
+	<p>
+      I have a few siblings, together we're:
+      <ul>
+	    {{ range .Siblings }}<li>{{ . }}</li>{{ end }}
+      </ul>
+    </p>
+	{{ else }}
+	<p>I don't have any siblings, I'm an only child :-(<p>
+	{{ end }}
+{{ end }}
   </main>
 </body>
 </html>`

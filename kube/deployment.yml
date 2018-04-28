@@ -35,12 +35,13 @@ spec:
 
 ---
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: podstalk
   labels:
     app: podstalk
 spec:
+  replicas: 3
   selector:
     matchLabels:
       ds: podstalk
