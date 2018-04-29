@@ -47,7 +47,7 @@ const htmlTemplate = `<!doctype html>
     </p>
 {{ if .Siblings }}
     <h3>Siblings</h3>
-    {{ if (len .Siblings) gt 1 }}
+    {{ if gt (len .Siblings) 1 }}
     <p>
       I have a few siblings, together we're:
       <ul>
