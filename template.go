@@ -5,12 +5,13 @@ const htmlTemplate = `<!doctype html>
 <head>
   <meta charset="utf-8" />
   <title>{{ .Title }}</title>
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet">
   <style type="text/css">
     html, body {
       margin: 0;
       padding: 0;
       font-family: Ubuntu,"Helvetica Neue",Arial,Helvetica,sans-serif;
+      font-size: 20px;
       color: #ffffff;
       background: #002F47;
     }
