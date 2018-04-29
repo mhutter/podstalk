@@ -37,8 +37,10 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	p := podInfo
 	p.Now = time.Now().Format(time.RFC3339Nano)
 
-	for _, pod := range client.ListPods().Items {
-		p.Siblings = append(p.Siblings, pod.Metadata.Name)
+	if client != nil {
+		for _, pod := range client.ListPods().Items {
+			p.Siblings = append(p.Siblings, pod.Metadata.Name)
+		}
 	}
 
 	err := t.Execute(w, p)

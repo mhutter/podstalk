@@ -45,16 +45,25 @@ func NewClient() *K8sClient {
 	)
 
 	buf, err := ioutil.ReadFile(tokenPath)
-	check(err)
+	if err != nil {
+		log.Printf("ERROR: %s\n", err)
+		return nil
+	}
 	token := string(buf)
 
 	buf, err = ioutil.ReadFile(namespacePath)
-	check(err)
+	if err != nil {
+		log.Printf("ERROR: %s\n", err)
+		return nil
+	}
 	namespace := string(buf)
 
 	caPool := x509.NewCertPool()
 	buf, err = ioutil.ReadFile(caPath)
-	check(err)
+	if err != nil {
+		log.Printf("ERROR: %s\n", err)
+		return nil
+	}
 	caPool.AppendCertsFromPEM(buf)
 	tlsConfig := &tls.Config{RootCAs: caPool}
 
