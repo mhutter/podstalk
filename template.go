@@ -15,7 +15,7 @@ const htmlTemplate = `<!doctype html>
       color: #ffffff;
       background: #002F47;
     }
-    h1 {
+    h1,h2,h3 {
       font-weight: normal;
     }
     main {
