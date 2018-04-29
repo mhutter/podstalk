@@ -46,17 +46,17 @@ const htmlTemplate = `<!doctype html>
       The current time is <strong>{{ .Now }}</strong>, plus/minus a bit.
     </p>
 {{ if .Siblings }}
-	<h3>Siblings</h3>
-	{{ if (len .Siblings) gt 1 }}
-	<p>
+    <h3>Siblings</h3>
+    {{ if (len .Siblings) gt 1 }}
+    <p>
       I have a few siblings, together we're:
       <ul>
-	    {{ range .Siblings }}<li>{{ . }}</li>{{ end }}
+        {{ range .Siblings }}<li>{{ . }}</li>{{ end }}
       </ul>
     </p>
-	{{ else }}
-	<p>I don't have any siblings, I'm an only child :-(<p>
-	{{ end }}
+    {{ else }}
+    <p>I don't have any siblings, I'm an only child :-(<p>
+    {{ end }}
 {{ end }}
   </main>
 </body>
