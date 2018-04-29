@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: podstalk
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: podstalk
+          servicePort: 8080
+        path: /podstalk
