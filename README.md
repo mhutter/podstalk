@@ -4,7 +4,10 @@ Container that displays informations about the Pod it's running on.
 
 ## Usage
 
-    kubectl apply -f https://github.com/mhutter/podstalk/raw/master/kube/daemonset.yml
+```sh
+kubectl create namespace podstalk && \
+kubectl -n podstalk apply -f https://github.com/mhutter/podstalk/raw/master/kube/daemonset.yml
+```
 
 Will create a daemonset running `mhutter/podstalk` and a service named
 `podstalk`, along with a Role and a Rolebinding required to list pods in the
