@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	nats "github.com/nats-io/go-nats"
 )
 
 // PodInfo contains all interesting information about a pod
@@ -30,6 +32,7 @@ var (
 	podInfo PodInfo
 	ips     []string
 	client  *K8sClient
+	nc      *nats.Conn
 	t       *template.Template
 )
 
@@ -61,6 +64,13 @@ func init() {
 	client = NewClient()
 	collectIPs()
 	collectEnv()
+
+	var err error
+	nc, err = nats.Connect(getEnvOr("NATS_URL", "nats://localhost:4222"))
+	if err != nil {
+		log.Printf("WARN: Could not connect to NATS: %s\n", err)
+		nc = nil
+	}
 }
 
 func collectEnv() {

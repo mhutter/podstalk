@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"os"
 )
 
 type access struct {
@@ -25,7 +25,20 @@ func jsonAccessLogger(w http.ResponseWriter, r *http.Request) {
 			Path:       r.URL.Path,
 			UserAgent:  r.Header.Get("User-Agent"),
 		}
-		json.NewEncoder(os.Stdout).Encode(msg)
+		buf, err := json.Marshal(msg)
+		if err != nil {
+			fmt.Printf("ERROR: %s\n, err")
+			return
+		}
+
+		fmt.Println(string(buf))
+
+		if nc != nil {
+			err = nc.Publish("visitor", buf)
+			if err != nil {
+				fmt.Printf("ERROR: %s\n", err)
+			}
+		}
 	}()
 }
 
