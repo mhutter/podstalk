@@ -1,4 +1,4 @@
-package main
+package k8s
 
 import (
 	"crypto/tls"
@@ -28,14 +28,14 @@ type PodList struct {
 	} `json:"items"`
 }
 
-type K8sClient struct {
+type Client struct {
 	Server    string
 	Token     string
 	Namespace string
 	client    http.Client
 }
 
-func NewClient() *K8sClient {
+func NewClient() *Client {
 	var buf []byte
 
 	server := fmt.Sprintf(
@@ -58,6 +58,7 @@ func NewClient() *K8sClient {
 	}
 	namespace := string(buf)
 
+	// use provided CA data
 	caPool := x509.NewCertPool()
 	buf, err = ioutil.ReadFile(caPath)
 	if err != nil {
@@ -67,7 +68,7 @@ func NewClient() *K8sClient {
 	caPool.AppendCertsFromPEM(buf)
 	tlsConfig := &tls.Config{RootCAs: caPool}
 
-	return &K8sClient{
+	return &Client{
 		Server:    server,
 		Token:     token,
 		Namespace: namespace,
@@ -78,7 +79,8 @@ func NewClient() *K8sClient {
 	}
 }
 
-func (c *K8sClient) ListPods() (list PodList) {
+// ListPods returns a `PodList` of all the pods in the configured namespace
+func (c *Client) ListPods() (list PodList) {
 	var err error
 	url := fmt.Sprintf("%s/api/v1/namespaces/%s/pods", c.Server, c.Namespace)
 	var req *http.Request

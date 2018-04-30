@@ -1,8 +1,8 @@
 FROM golang:alpine as build
 
-WORKDIR /go/src
+WORKDIR /go/src/github.com/mhutter/podstalk
 COPY . .
-RUN go build -o /tmp/podstalk .
+RUN go build -v -o /tmp/podstalk ./cmd/podstalk/podstalk.go
 
 FROM alpine
 

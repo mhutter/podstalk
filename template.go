@@ -1,4 +1,4 @@
-package main
+package podstalk
 
 const htmlTemplate = `<!doctype html>
 <html>

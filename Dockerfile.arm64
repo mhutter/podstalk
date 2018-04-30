@@ -2,9 +2,9 @@ FROM arm64v8/golang:alpine as build
 
 RUN apk add --no-cache build-base
 
-WORKDIR /go/src
+WORKDIR /go/src/github.com/mhutter/podstalk
 COPY . .
-RUN go build -o /tmp/podstalk .
+RUN go build -v -o /tmp/podstalk ./cmd/podstalk/podstalk.go
 
 FROM arm64v8/alpine
 

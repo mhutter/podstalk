@@ -1,2 +1,6 @@
-*
-!*.go
+**/*.md
+**/.*
+**/Dockerfile*
+**/Gopkg.*
+**/gin-bin
+kube/
