@@ -108,9 +108,15 @@ func getEnvOr(name, fallback string) string {
 
 func main() {
 	port := getEnvOr("PORT", "8080")
+
+	handler := chain(
+		http.HandlerFunc(jsonAccessLogger),
+		http.HandlerFunc(infoHandler),
+	)
+
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%s", port),
-		Handler:        http.HandlerFunc(infoHandler),
+		Handler:        handler,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   5 * time.Second,
 		MaxHeaderBytes: 1 << 20,

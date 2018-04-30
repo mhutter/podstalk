@@ -18,7 +18,3 @@ namespace.
 The following env vars can be set to customize Podstalk:
 
 * `TITLE` (_default: `Podstalk`_) - `<title>` of the HTML page
-
-## To do
-
-- access log
