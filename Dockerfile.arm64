@@ -1,0 +1,15 @@
+FROM arm64v8/golang:alpine as build
+
+RUN apk add --no-cache build-base
+
+WORKDIR /go/src
+COPY . .
+RUN go build -o /tmp/podstalk .
+
+FROM arm64v8/alpine
+
+ENV PORT=8080
+EXPOSE 8080
+
+COPY --from=build /tmp/podstalk /bin/podstalk
+CMD ["/bin/podstalk"]
