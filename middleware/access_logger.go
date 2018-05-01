@@ -38,7 +38,7 @@ func (al *AccessLogger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(string(buf))
 
 	if al.nc != nil {
-		err = al.nc.Publish("visit", buf)
+		err = al.nc.Publish(podstalk.Topic, buf)
 		if err != nil {
 			fmt.Printf("ERROR: %s\n", err)
 		}

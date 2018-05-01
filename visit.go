@@ -1,5 +1,7 @@
 package podstalk
 
+const Topic = "visit"
+
 type Visit struct {
 	Host       string `json:"host"`
 	Method     string `json:"method"`
