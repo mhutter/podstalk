@@ -5,7 +5,7 @@ RUN apk add --no-cache git && \
 
 WORKDIR /go/src/github.com/mhutter/podstalk
 
-COPY . ./
+COPY . .
 RUN ls -la
 RUN dep ensure
 RUN go install -v ./cmd/...
