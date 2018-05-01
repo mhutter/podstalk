@@ -1,6 +1,6 @@
 **/*.md
 **/.*
 **/Dockerfile*
-**/Gopkg.*
 **/gin-bin
 kube/
+vendor/

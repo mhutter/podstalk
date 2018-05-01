@@ -1,13 +1,18 @@
 FROM golang:alpine as build
 
+RUN apk add --no-cache git && \
+    wget -O- https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
 WORKDIR /go/src/github.com/mhutter/podstalk
+
 COPY . .
-RUN go build -v -o /tmp/podstalk ./cmd/podstalk/podstalk.go
+RUN dep ensure
+RUN go install -v ./cmd/...
 
 FROM alpine
 
 ENV PORT=8080
 EXPOSE 8080
 
-COPY --from=build /tmp/podstalk /bin/podstalk
+COPY --from=build /go/bin/podstalk /bin/podstalk
 CMD ["/bin/podstalk"]
