@@ -40,7 +40,7 @@ const htmlTemplate = `<!doctype html>
 </head>
 <body>
   <header>
-    <img src="appuioli.png"/>
+    <img src="{{ .BasePath }}/appuioli.png"/>
   </header>
   <main>
     <h1>Hi, I'm <strong>{{ .Name }}</strong>!</h1>

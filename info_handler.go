@@ -32,6 +32,7 @@ type PodInfo struct {
 	Title          string
 	Siblings       []string
 	Refresh        int
+	BasePath       string
 }
 
 func NewInfoHandler() InfoHandler {
@@ -76,6 +77,7 @@ func collectPodInfo() PodInfo {
 		NodeIP:         os.Getenv("NODE_IP"),
 		Title:          GetEnvOr("TITLE", "Podstalk"),
 		Info:           collectEnv(),
+		BasePath:       os.Getenv("BASE_PATH"),
 	}
 }
 

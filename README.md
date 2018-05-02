@@ -18,6 +18,7 @@ namespace.
 The following env vars can be set to customize Podstalk:
 
 * `TITLE` (_default: `Podstalk`_) - `<title>` of the HTML page
+* `BASE_PATH` (_default: `""`_) - Base path of the app, used for asset serving
 
 ## Development
 
