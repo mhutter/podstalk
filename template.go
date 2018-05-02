@@ -3,8 +3,11 @@ package podstalk
 const htmlTemplate = `<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{{- if gt .Refresh 0 }}
+  <meta http-equiv="refresh" content="{{ .Refresh }}">
+{{- end }}
   <title>{{ .Title }}</title>
   <link rel="shortcut icon" type="image/png" href="https://kubernetes.io/images/favicon.png">
   <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet">

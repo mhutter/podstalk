@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type PodInfo struct {
 	Now            string
 	Title          string
 	Siblings       []string
+	Refresh        int
 }
 
 func NewInfoHandler() InfoHandler {
@@ -52,7 +54,13 @@ func (h InfoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := h.t.Execute(w, p)
+	var err error
+	p.Refresh, err = strconv.Atoi(r.URL.Query().Get("refresh"))
+	if err != nil {
+		p.Refresh = 0
+	}
+
+	err = h.t.Execute(w, p)
 	if err != nil {
 		log.Fatal(err)
 	}
