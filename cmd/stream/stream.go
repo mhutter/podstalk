@@ -14,9 +14,9 @@ func handleVisit(m *nats.Msg) {
 	v := &podstalk.Visit{}
 	json.Unmarshal(m.Data, v)
 	log.Printf(
-		"New visit from %s using a %s operating system!",
-		v.RemoteAddr,
+		"New %s user from %s visiting!",
 		extractOS(v.UserAgent),
+		v.RemoteAddr,
 	)
 }
 
@@ -41,6 +41,12 @@ func extractOS(ua string) string {
 	ua = strings.ToLower(ua)
 
 	switch {
+	case strings.Contains(ua, "iphone"):
+		os = "iPhone"
+
+	case strings.Contains(ua, "android"):
+		os = "Android"
+
 	case strings.Contains(ua, "linux"):
 		os = "Linux"
 
