@@ -43,15 +43,18 @@ func collectIPs() {
 
 func main() {
 	port := podstalk.GetEnvOr("PORT", "8080")
+	mux := http.NewServeMux()
 
-	handler := middleware.Chain(
+	mux.Handle("/", middleware.Chain(
 		middleware.NewAccessLogger(),
 		podstalk.NewInfoHandler(),
-	)
+	))
+
+	mux.HandleFunc("/appuioli.png", podstalk.LogoHandler)
 
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%s", port),
-		Handler:        handler,
+		Handler:        mux,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   5 * time.Second,
 		MaxHeaderBytes: 1 << 20,

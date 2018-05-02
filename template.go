@@ -4,6 +4,7 @@ const htmlTemplate = `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{{ .Title }}</title>
   <link rel="shortcut icon" type="image/png" href="https://kubernetes.io/images/favicon.png">
   <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet">
@@ -19,15 +20,25 @@ const htmlTemplate = `<!doctype html>
     h1,h2,h3 {
       font-weight: normal;
     }
-    main {
-      padding-top: 100px;
+    header,main {
+      padding: 8px;
       max-width: 940px;
       margin-left: auto;
       margin-right: auto;
     }
+    header {
+      text-align: center;
+    }
+    header img {
+      width: 100%;
+      max-width: 432px;
+    }
   </style>
 </head>
 <body>
+  <header>
+    <img src="appuioli.png"/>
+  </header>
   <main>
     <h1>Hi, I'm <strong>{{ .Name }}</strong>!</h1>
     <p>

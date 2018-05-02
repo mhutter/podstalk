@@ -21,6 +21,12 @@ The following env vars can be set to customize Podstalk:
 
 ## Development
 
+To regenerate bindata.go, do:
+
+```sh
+go-bindata -pkg podstalk -prefix data/ data/*
+```
+
 For local development I recommend using [gin][]:
 
 ```sh
