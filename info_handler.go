@@ -35,9 +35,9 @@ type PodInfo struct {
 	BasePath       string
 }
 
-func NewInfoHandler() InfoHandler {
+func NewInfoHandler(basePath string) InfoHandler {
 	h := InfoHandler{
-		info: collectPodInfo(),
+		info: collectPodInfo(basePath),
 		kc:   k8s.NewClient(),
 		t:    template.Must(template.New("index").Parse(htmlTemplate)),
 	}
@@ -67,7 +67,7 @@ func (h InfoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func collectPodInfo() PodInfo {
+func collectPodInfo(basePath string) PodInfo {
 	return PodInfo{
 		Name:           os.Getenv("POD_NAME"),
 		Namespace:      os.Getenv("POD_NAMESPACE"),
@@ -77,7 +77,7 @@ func collectPodInfo() PodInfo {
 		NodeIP:         os.Getenv("NODE_IP"),
 		Title:          GetEnvOr("TITLE", "Podstalk"),
 		Info:           collectEnv(),
-		BasePath:       os.Getenv("BASE_PATH"),
+		BasePath:       basePath,
 	}
 }
 

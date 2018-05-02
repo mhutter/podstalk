@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/mhutter/podstalk"
@@ -43,14 +44,15 @@ func collectIPs() {
 
 func main() {
 	port := podstalk.GetEnvOr("PORT", "8080")
+	basePath := os.Getenv("BASE_PATH")
 	mux := http.NewServeMux()
 
 	mux.Handle("/", middleware.Chain(
 		middleware.NewAccessLogger(),
-		podstalk.NewInfoHandler(),
+		podstalk.NewInfoHandler(basePath),
 	))
 
-	mux.HandleFunc("/appuioli.png", podstalk.LogoHandler)
+	mux.HandleFunc(basePath+"/appuioli.png", podstalk.LogoHandler)
 
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%s", port),
