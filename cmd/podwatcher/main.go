@@ -29,14 +29,7 @@ func main() {
 
 	// Create & start watcher
 	watcher := podwatcher.New(clientset, namespace)
-	watcher.List()
-
-	log.Printf("We have %d pods!", len(watcher.PodNames))
-	for _, n := range watcher.PodNames {
-		log.Println(" -> ", n)
-	}
-
-	log.Println("Goodbye")
+	watcher.Watch()
 }
 
 func namespaceFlag(namespace *string) {
