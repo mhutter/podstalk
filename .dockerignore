@@ -1,0 +1,5 @@
+*.md
+.*
+Dockerfile*
+gin-bin
+podstalk
