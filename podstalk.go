@@ -1,4 +1,4 @@
-package podwatcher
+package podstalk
 
 import (
 	"log"

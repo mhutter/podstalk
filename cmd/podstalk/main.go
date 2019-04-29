@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mhutter/podstalk"
 	"github.com/mhutter/podstalk/kube"
-	"github.com/mhutter/podstalk/podwatcher"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Create & start watcher
-	watcher := podwatcher.New(clientset, namespace)
+	watcher := podstalk.New(clientset, namespace)
 	watcher.Watch()
 }
 
