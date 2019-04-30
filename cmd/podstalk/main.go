@@ -4,6 +4,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/mhutter/podstalk/server"
 	"github.com/mhutter/podstalk/watcher"
 )
 
@@ -11,15 +12,22 @@ func main() {
 	// Configure logger
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	// Define & parse flags
+	// Read configurations
+	port := getPort()
 	namespace := getNamespace()
 	kubeconfig := getKubeconfig()
 
 	stop := make(chan struct{})
 	var wg sync.WaitGroup
 
-	startWatcher(kubeconfig, namespace, stop, &wg)
+	go startWatcher(kubeconfig, namespace, stop, &wg)
+	startServer(port)
 	wg.Wait()
+}
+
+func startServer(port string) {
+	s := server.New(":" + port)
+	s.Start()
 }
 
 func startWatcher(kubeconfig, namespace string, stop <-chan struct{}, wg *sync.WaitGroup) {
