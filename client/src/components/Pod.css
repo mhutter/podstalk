@@ -1,0 +1,9 @@
+.pod--phase-Pending {
+  color: yellow;
+}
+.pod--phase-Running {
+  color: green;
+}
+.pod--phase-Terminating {
+  color: red;
+}

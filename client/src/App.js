@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import logo from './appuioli.png'
+import PodList from './components/PodList';
 
 function App() {
   return (
@@ -8,7 +9,9 @@ function App() {
       <header className="app__header">
         <img src={logo} className="app__logo" alt="APPUiOli" />
       </header>
-      <main>Pod List goes here</main>
+      <main>
+        <PodList />
+      </main>
     </div>
   );
 }
