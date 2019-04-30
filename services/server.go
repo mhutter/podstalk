@@ -1,4 +1,4 @@
-package server
+package services
 
 import (
 	"log"
@@ -9,11 +9,14 @@ import (
 // Server handles HTTP and Websocket requests
 type Server struct {
 	http.Server
+
+	Registry Registry
 }
 
-// New returns a new configured server
-func New(addr string) *Server {
+// NewServer returns a configured server
+func NewServer(addr string, r Registry) *Server {
 	return &Server{
+		Registry: r,
 		Server: http.Server{
 			Addr:           addr,
 			Handler:        nil,

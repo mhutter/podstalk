@@ -2,10 +2,8 @@ package main
 
 import (
 	"log"
-	"sync"
 
-	"github.com/mhutter/podstalk/server"
-	"github.com/mhutter/podstalk/watcher"
+	"github.com/mhutter/podstalk/services"
 )
 
 func main() {
@@ -13,33 +11,25 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Read configurations
-	port := getPort()
+	addr := getAddr()
 	namespace := getNamespace()
 	kubeconfig := getKubeconfig()
 
-	stop := make(chan struct{})
-	var wg sync.WaitGroup
+	// Create services
+	w := services.NewWatcher(kubeconfig, namespace)
+	r := services.NewRegistry()
+	s := services.NewServer(addr, r)
 
-	go startWatcher(kubeconfig, namespace, stop, &wg)
-	startServer(port)
-	wg.Wait()
-}
+	// Start services
+	w.Start()
+	updates := r.Start(w.Events)
 
-func startServer(port string) {
-	s := server.New(":" + port)
+	// Post updates to log
+	go func() {
+		for e := range updates {
+			log.Printf("%-8s - %s", e.Type, e.Pod.Name)
+		}
+	}()
+
 	s.Start()
-}
-
-func startWatcher(kubeconfig, namespace string, stop <-chan struct{}, wg *sync.WaitGroup) {
-	// Create clientset
-	clientset, err := getClientset(kubeconfig)
-	if err != nil {
-		log.Fatalln("ERROR configuring Kubernetes client:", err)
-	}
-
-	// Create & start watcher
-	wg.Add(1)
-	w := watcher.New(clientset, namespace)
-	w.Watch(stop)
-	wg.Done()
 }
