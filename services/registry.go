@@ -48,3 +48,15 @@ func (r Registry) listen(events <-chan *podstalk.Event, updates chan<- *podstalk
 		}
 	}
 }
+
+// ListPods returns all pods in the registry as a slice
+func (r Registry) ListPods() []podstalk.PodStatus {
+	list := make([]podstalk.PodStatus, 0, len(r))
+
+	for _, p := range r {
+		pod := *p
+		list = append(list, pod)
+	}
+
+	return list
+}
