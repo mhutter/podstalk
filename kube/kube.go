@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// CommonFlags adds flags for kubeconfig to the default flagset
 func CommonFlags(kubeconfig *string) {
 	if home := os.Getenv("HOME"); home != "" {
 		flag.StringVar(kubeconfig, "kubeconfig",

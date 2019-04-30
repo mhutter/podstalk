@@ -6,9 +6,10 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
-	"github.com/mhutter/podstalk"
 	"github.com/mhutter/podstalk/kube"
+	"github.com/mhutter/podstalk/watcher"
 )
 
 func main() {
@@ -21,15 +22,11 @@ func main() {
 	namespaceFlag(&namespace)
 	flag.Parse()
 
-	// Create clientset
-	clientset, err := kube.GetClientset(kubeconfig)
-	if err != nil {
-		log.Fatalln("ERROR configuring Kubernetes client:", err)
-	}
+	stop := make(chan struct{})
+	var wg sync.WaitGroup
 
-	// Create & start watcher
-	watcher := podstalk.New(clientset, namespace)
-	watcher.Watch()
+	startWatcher(kubeconfig, namespace, stop, &wg)
+	wg.Wait()
 }
 
 func namespaceFlag(namespace *string) {
@@ -41,7 +38,21 @@ func namespaceFlag(namespace *string) {
 		flag.StringVar(namespace, "namespace", defaultNamespace,
 			"(optional) namespace to use")
 	} else {
-		flag.StringVar(namespace, "namespace", "",
+		flag.StringVar(namespace, "namespace", os.Getenv("NAMESPACE"),
 			"namespace to use")
 	}
+}
+
+func startWatcher(kubeconfig, namespace string, stop <-chan struct{}, wg *sync.WaitGroup) {
+	// Create clientset
+	clientset, err := kube.GetClientset(kubeconfig)
+	if err != nil {
+		log.Fatalln("ERROR configuring Kubernetes client:", err)
+	}
+
+	// Create & start watcher
+	wg.Add(1)
+	w := watcher.New(clientset, namespace)
+	w.Watch(stop)
+	wg.Done()
 }
