@@ -1,0 +1,16 @@
+.app__header,
+.app main {
+  padding: 8px;
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app__header {
+  text-align: center;
+}
+
+.app__logo {
+  width: 100%;
+  max-width: 432px;
+}
