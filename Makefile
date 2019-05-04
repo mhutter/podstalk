@@ -42,4 +42,9 @@ clean:
 Dockerfile.arm64: Dockerfile
 	sed -e 's|amd64|arm64|' Dockerfile > Dockerfile.arm64
 
-.PHONY: test image clean
+dev-server:
+	gin --build cmd/podstalk --immediate --port 8080
+dev-client:
+	cd client && yarn start
+
+.PHONY: test image clean push dev-server dev-client
