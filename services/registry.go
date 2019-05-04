@@ -13,6 +13,7 @@ import (
 type Registry struct {
 	Pods    map[types.UID]*podstalk.PodStatus
 	Updates chan *podstalk.Event
+	Debug   bool
 }
 
 // NewRegistry returns a new registry
@@ -20,6 +21,7 @@ func NewRegistry() Registry {
 	return Registry{
 		Pods:    make(map[types.UID]*podstalk.PodStatus),
 		Updates: make(chan *podstalk.Event, 10),
+		Debug:   false,
 	}
 }
 
@@ -58,7 +60,9 @@ func (r Registry) listen(events <-chan *podstalk.Event) {
 
 func (r Registry) publish(e *podstalk.Event) {
 	r.Updates <- e
-	log.Printf("%-8s - %s", e.Type, e.Pod.Name)
+	if r.Debug {
+		log.Printf("%-8s - %s", e.Type, e.Pod.Name)
+	}
 }
 
 // ListPods returns all pods in the registry as a slice

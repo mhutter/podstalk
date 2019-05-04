@@ -15,6 +15,7 @@ func main() {
 
 	// Read configurations
 	addr := getAddr()
+	debug := getDebug()
 	namespace := getNamespace()
 	kubeconfig := getKubeconfig()
 
@@ -22,6 +23,9 @@ func main() {
 	w := services.NewWatcher(kubeconfig, namespace)
 	r := services.NewRegistry()
 	s := services.NewServer(addr, r)
+
+	r.Debug = debug
+	s.Debug = debug
 
 	// Start services
 	r.Start(w.Events)

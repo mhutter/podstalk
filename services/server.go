@@ -17,7 +17,9 @@ import (
 type Server struct {
 	http.Server
 
-	Registry        Registry
+	Registry Registry
+	Debug    bool
+
 	pendingRequests chan struct{}
 	upgrader        websocket.Upgrader
 	clients         clients
@@ -31,6 +33,7 @@ func NewServer(addr string, reg Registry) *Server {
 
 	s := &Server{
 		Registry: reg,
+		Debug:    false,
 		Server: http.Server{
 			Addr:           addr,
 			Handler:        r,
@@ -41,6 +44,8 @@ func NewServer(addr string, reg Registry) *Server {
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
+			// We don't really care about the origin, so simply accept
+			// the connection
 			CheckOrigin: func(r *http.Request) bool {
 				return true
 			},
@@ -66,7 +71,7 @@ func (s *Server) start() {
 
 	log.Printf("\x1b[32mListening on %s\x1b[0m", s.Addr)
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
-		log.Printf("HTTP server ListenAndServe: %v", err)
+		log.Println("Error from Server:", err)
 	}
 }
 
@@ -94,6 +99,9 @@ func (s *Server) HandleSocket(w http.ResponseWriter, r *http.Request) {
 		log.Println("Upgrade failed:", err)
 		return
 	}
+	if s.Debug {
+		log.Println("New client:", r.RemoteAddr)
+	}
 	defer conn.Close()
 
 	// Send an ADDED event for all pods currently in the registry
@@ -109,10 +117,22 @@ func (s *Server) HandleSocket(w http.ResponseWriter, r *http.Request) {
 	// Listen on the connection until it is closed
 	for {
 		if _, _, err := conn.NextReader(); err != nil {
-			log.Println("client error:", err)
-			delete(s.clients, conn)
-			break
+			if err2, ok := err.(*websocket.CloseError); ok {
+				if err2.Code == websocket.CloseGoingAway ||
+					err2.Code == websocket.CloseNormalClosure {
+					// normal close codes, don't care
+					break
+				}
+			}
+
+			log.Println("Client error:", err)
 		}
+	}
+
+	delete(s.clients, conn)
+
+	if s.Debug {
+		log.Println("Client disconnected:", r.RemoteAddr)
 	}
 }
 
