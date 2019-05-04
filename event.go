@@ -6,6 +6,6 @@ import (
 
 // Event is sent when a pod is created, modified or deleted
 type Event struct {
-	Type watch.EventType
-	Pod  *PodStatus
+	Type watch.EventType `json:"type,omitempty"`
+	Pod  *PodStatus      `json:"pod,omitempty"`
 }

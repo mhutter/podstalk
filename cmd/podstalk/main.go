@@ -24,7 +24,7 @@ func main() {
 	s := services.NewServer(addr, r)
 
 	// Start services
-	updates := r.Start(w.Events)
+	r.Start(w.Events)
 	w.Start()
 	s.Start()
 
@@ -40,13 +40,6 @@ func main() {
 		s.Stop()
 
 		close(done)
-	}()
-
-	// Post updates to log
-	go func() {
-		for e := range updates {
-			log.Printf("%-8s - %s", e.Type, e.Pod.Name)
-		}
 	}()
 
 	<-done

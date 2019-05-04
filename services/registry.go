@@ -10,53 +10,62 @@ import (
 )
 
 // Registry stores infos about pods
-type Registry map[types.UID]*podstalk.PodStatus
+type Registry struct {
+	Pods    map[types.UID]*podstalk.PodStatus
+	Updates chan *podstalk.Event
+}
 
 // NewRegistry returns a new registry
 func NewRegistry() Registry {
-	return Registry{}
+	return Registry{
+		Pods:    make(map[types.UID]*podstalk.PodStatus),
+		Updates: make(chan *podstalk.Event, 10),
+	}
 }
 
 // Start the registry service. It will handle Events received via "events",
 // update its internal state and emmit the Event via "updates" if something
 // actually changed.
-func (r Registry) Start(events <-chan *podstalk.Event) <-chan *podstalk.Event {
-	updates := make(chan *podstalk.Event)
-	go r.listen(events, updates)
+func (r Registry) Start(events <-chan *podstalk.Event) {
+	go r.listen(events)
 	log.Println("Registry ready")
-	return updates
 }
 
-func (r Registry) listen(events <-chan *podstalk.Event, updates chan<- *podstalk.Event) {
+func (r Registry) listen(events <-chan *podstalk.Event) {
 	for e := range events {
 		switch e.Type {
 		case watch.Added:
-			r[e.Pod.UID] = e.Pod
-			updates <- e
+			r.Pods[e.Pod.UID] = e.Pod
+			r.publish(e)
 
 		case watch.Modified:
 			// Only update and publish events if anything has actually changed.
 			// Since the controller will publish ALL updates, we might get
 			// updates on pods that have only updates on fields not represented
 			// in PodStatus
-			if !reflect.DeepEqual(r[e.Pod.UID], e.Pod) {
-				r[e.Pod.UID] = e.Pod
-				updates <- e
+			if !reflect.DeepEqual(r.Pods[e.Pod.UID], e.Pod) {
+				r.Pods[e.Pod.UID] = e.Pod
+				r.publish(e)
 			}
 
 		case watch.Deleted:
-			delete(r, e.Pod.UID)
-			updates <- e
+			delete(r.Pods, e.Pod.UID)
+			r.publish(e)
 		}
 	}
 	log.Println("Registry stopped")
 }
 
+func (r Registry) publish(e *podstalk.Event) {
+	r.Updates <- e
+	log.Printf("%-8s - %s", e.Type, e.Pod.Name)
+}
+
 // ListPods returns all pods in the registry as a slice
 func (r Registry) ListPods() []podstalk.PodStatus {
-	list := make([]podstalk.PodStatus, 0, len(r))
+	list := make([]podstalk.PodStatus, 0, len(r.Pods))
 
-	for _, p := range r {
+	for _, p := range r.Pods {
 		pod := *p
 		list = append(list, pod)
 	}

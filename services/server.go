@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	"github.com/mhutter/podstalk"
 )
 
 // Server handles HTTP and Websocket requests
@@ -16,7 +19,11 @@ type Server struct {
 
 	Registry        Registry
 	pendingRequests chan struct{}
+	upgrader        websocket.Upgrader
+	clients         clients
 }
+
+type clients map[*websocket.Conn]*sync.Mutex
 
 // NewServer returns a configured server
 func NewServer(addr string, reg Registry) *Server {
@@ -31,27 +38,36 @@ func NewServer(addr string, reg Registry) *Server {
 			WriteTimeout:   8 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		},
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+		clients: make(clients),
 	}
 
 	r.HandleFunc("/api/pods", s.ListPods)
+	r.HandleFunc("/api/ws", s.HandleSocket)
 
 	return s
 }
 
 // Start starts up the HTTP server
 func (s *Server) Start() {
+	go s.broadcast()
 	go s.start()
 }
 
 func (s *Server) start() {
 	s.pendingRequests = make(chan struct{})
+	defer close(s.pendingRequests)
 
 	log.Printf("\x1b[32mListening on %s\x1b[0m", s.Addr)
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("HTTP server ListenAndServe: %v", err)
 	}
-
-	close(s.pendingRequests)
 }
 
 // Stop gracefully stops the HTTP server
@@ -69,4 +85,49 @@ func (s *Server) Stop() {
 func (s *Server) ListPods(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(s.Registry.ListPods())
+}
+
+// HandleSocket GET /api/ws - upgrades connection to a WebSocket
+func (s *Server) HandleSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := s.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Upgrade failed:", err)
+		return
+	}
+	defer conn.Close()
+
+	// Send an ADDED event for all pods currently in the registry
+	for _, pod := range s.Registry.ListPods() {
+		e := podstalk.Event{
+			Type: "ADDED",
+			Pod:  &pod,
+		}
+		conn.WriteJSON(e)
+	}
+	s.clients[conn] = &sync.Mutex{}
+
+	// Listen on the connection until it is closed
+	for {
+		if _, _, err := conn.NextReader(); err != nil {
+			log.Println("client error:", err)
+			delete(s.clients, conn)
+			break
+		}
+	}
+}
+
+func (s *Server) broadcast() {
+	for e := range s.Registry.Updates {
+		for c, l := range s.clients {
+			go publish(e, c, l)
+		}
+	}
+}
+
+func publish(e *podstalk.Event, c *websocket.Conn, lock *sync.Mutex) {
+	lock.Lock()
+	defer lock.Unlock()
+	if err := c.WriteJSON(e); err != nil {
+		log.Println("Error sending event:", err)
+	}
 }
