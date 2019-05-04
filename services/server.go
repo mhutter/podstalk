@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -13,7 +14,8 @@ import (
 type Server struct {
 	http.Server
 
-	Registry Registry
+	Registry        Registry
+	pendingRequests chan struct{}
 }
 
 // NewServer returns a configured server
@@ -38,8 +40,29 @@ func NewServer(addr string, reg Registry) *Server {
 
 // Start starts up the HTTP server
 func (s *Server) Start() {
+	go s.start()
+}
+
+func (s *Server) start() {
+	s.pendingRequests = make(chan struct{})
+
 	log.Printf("\x1b[32mListening on %s\x1b[0m", s.Addr)
-	log.Fatal(s.ListenAndServe())
+	if err := s.ListenAndServe(); err != http.ErrServerClosed {
+		log.Printf("HTTP server ListenAndServe: %v", err)
+	}
+
+	close(s.pendingRequests)
+}
+
+// Stop gracefully stops the HTTP server
+func (s *Server) Stop() {
+	if err := s.Shutdown(context.Background()); err != nil {
+		log.Println("Error during HTTP server shutdown:", err)
+	}
+
+	// Wait for all requests to finish
+	<-s.pendingRequests
+	log.Println("Server stopped")
 }
 
 // ListPods GET /api/pods - returns an array of all pods

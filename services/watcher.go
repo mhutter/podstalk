@@ -21,6 +21,7 @@ type Watcher struct {
 
 	Events    chan *podstalk.Event
 	namespace string
+	pods      watch.Interface
 }
 
 // NewWatcher returns a new, configured Watcher
@@ -38,20 +39,37 @@ func NewWatcher(kubeconfig, namespace string) *Watcher {
 	}
 }
 
-// Start starts the watcher and returns a chan delivering pod change events.
+// Start starts the watcher
 func (w *Watcher) Start() {
+	go w.start()
+}
+
+func (w *Watcher) start() {
 	// start watching
 	watcher, err := w.Pods(w.namespace).Watch(metav1.ListOptions{})
 	if err != nil {
 		log.Fatalln("ERROR watching pods:", err)
 	}
+	w.pods = watcher
+	log.Println("Watcher ready")
 
 	// start actually watching for events
-	go func() {
-		for e := range watcher.ResultChan() {
-			w.handleEvent(e)
-		}
-	}()
+	for e := range w.pods.ResultChan() {
+		w.handleEvent(e)
+	}
+}
+
+// Stop stops the watcher and closes the events chan, causing listeners
+// to exit aswell
+func (w *Watcher) Stop() {
+	w.pods.Stop()
+	close(w.Events)
+	log.Println("Watcher stopped")
+}
+
+// Ready returns true if the watcher is up and running
+func (w *Watcher) Ready() bool {
+	return w.pods != nil
 }
 
 func (w *Watcher) handleEvent(e watch.Event) {

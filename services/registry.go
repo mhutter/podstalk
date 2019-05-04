@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"reflect"
 
 	"github.com/mhutter/podstalk"
@@ -22,6 +23,7 @@ func NewRegistry() Registry {
 func (r Registry) Start(events <-chan *podstalk.Event) <-chan *podstalk.Event {
 	updates := make(chan *podstalk.Event)
 	go r.listen(events, updates)
+	log.Println("Registry ready")
 	return updates
 }
 
@@ -47,6 +49,7 @@ func (r Registry) listen(events <-chan *podstalk.Event, updates chan<- *podstalk
 			updates <- e
 		}
 	}
+	log.Println("Registry stopped")
 }
 
 // ListPods returns all pods in the registry as a slice

@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"os/signal"
 
 	"github.com/mhutter/podstalk/services"
 )
@@ -9,6 +11,7 @@ import (
 func main() {
 	// Configure logger
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Println("Booting up")
 
 	// Read configurations
 	addr := getAddr()
@@ -21,8 +24,23 @@ func main() {
 	s := services.NewServer(addr, r)
 
 	// Start services
-	w.Start()
 	updates := r.Start(w.Events)
+	w.Start()
+	s.Start()
+
+	done := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+
+		// Stop the watcher and thus the registry
+		log.Println("Stopping services...")
+		w.Stop()
+		s.Stop()
+
+		close(done)
+	}()
 
 	// Post updates to log
 	go func() {
@@ -31,5 +49,6 @@ func main() {
 		}
 	}()
 
-	s.Start()
+	<-done
+	log.Println("Goodbye :(")
 }
