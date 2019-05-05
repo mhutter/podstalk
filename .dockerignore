@@ -4,3 +4,4 @@ Dockerfile*
 gin-bin
 podstalk
 client/node_modules/
+client/build/

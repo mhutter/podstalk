@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "podstalk.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "podstalk.name" . }}
+    helm.sh/chart: {{ include "podstalk.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "podstalk.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "podstalk.name" . }}
+    helm.sh/chart: {{ include "podstalk.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "podstalk.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "podstalk.name" . }}
+    helm.sh/chart: {{ include "podstalk.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "podstalk.fullname" . }}
+roleRef:
+  kind: Role
+  name: {{ include "podstalk.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+
