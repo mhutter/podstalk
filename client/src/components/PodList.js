@@ -7,7 +7,7 @@ const wsURL = () => {
     return 'ws://localhost:3001/api/ws'
   }
 
-  const url = new URL('/api/ws', window.location.href)
+  const url = new URL('./api/ws', window.location.href)
   url.protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
   return url.href
 }

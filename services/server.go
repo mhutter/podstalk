@@ -28,7 +28,7 @@ type Server struct {
 type clients map[*websocket.Conn]*sync.Mutex
 
 // NewServer returns a configured server
-func NewServer(addr string, reg Registry) *Server {
+func NewServer(addr string, reg Registry, basePath string) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{
@@ -53,14 +53,14 @@ func NewServer(addr string, reg Registry) *Server {
 		clients: make(clients),
 	}
 
-	api := mux.NewRouter()
-	api.HandleFunc("/api/pods", s.ListPods)
-	api.HandleFunc("/api/ws", s.HandleSocket)
+	// API Routes
+	api := r.PathPrefix(basePath + "/api").Subrouter()
+	api.HandleFunc("/pods", s.ListPods)
+	api.HandleFunc("/ws", s.HandleSocket)
 
-	r.PathPrefix("/api").Handler(api)
-	r.PathPrefix("/").
-		Handler(http.FileServer(http.Dir("public"))).
-		Methods("GET")
+	// Serve static files
+	fs := http.StripPrefix(basePath, http.FileServer(http.Dir("public")))
+	r.PathPrefix(basePath + "/").Handler(fs).Methods("GET")
 
 	return s
 }

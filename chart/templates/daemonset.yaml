@@ -35,6 +35,10 @@ spec:
             - name: NAMESPACE
               value: {{ . | quote }}
             {{- end}}
+            {{- with .Values.podstalk.basePath }}
+            - name: BASE_PATH
+              value: {{ . | quote }}
+            {{- end}}
           ports:
             - name: http
               containerPort: 8080

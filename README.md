@@ -15,6 +15,7 @@ Podstalk can be configured using the following environment variables:
 
 * `NAMESPACE` - (_default_: whatever is in `/var/run/secrets/kubernetes.io/serviceaccount/namespace`) - Namespace to list pods in. Set to `""` (empty string) to watch pods in ALL namespaces (given the ServiceAccount Podstalk runs under is privileged enough).
 * `DEBUG` - Set to a non-empty value to enable additional logging output.
+* `BASE_PATH` - If the app is not served from the host's root (`/`), set this to the subdir it is served from (eg. `/podstalk`).
 
 If you use the Helm chart, see `values.yaml`
 

@@ -18,6 +18,7 @@ podstalk:
   # Optional configuration
   debug: false
   # namespace: something
+  # basePath: /podstalk
 
 service:
   type: ClusterIP
