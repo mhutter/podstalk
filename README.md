@@ -1,19 +1,13 @@
 # Podstalk
 
-Containers that display information about the pods in the namespace they're
-running in.
+Containers that display information about the pods in the namespace they're running in.
 
-## Project state
-
-To do:
-- [ ] Replace hardcoded WebSocket-URL in the client side
-- [ ] Test In-Cluster deployments
-- [ ] Secure connections
-- [ ] Prepare Helm chart
 
 ## Usage
 
-TODO: Prepare & add deployment instructions
+0. Clone this repository
+0. `helm upgrade -i podstalk ./chart`
+
 
 ### Configuration
 
@@ -21,6 +15,8 @@ Podstalk can be configured using the following environment variables:
 
 * `NAMESPACE` - (_default_: whatever is in `/var/run/secrets/kubernetes.io/serviceaccount/namespace`) - Namespace to list pods in. Set to `""` (empty string) to watch pods in ALL namespaces (given the ServiceAccount Podstalk runs under is privileged enough).
 * `DEBUG` - Set to a non-empty value to enable additional logging output.
+
+If you use the Helm chart, see `values.yaml`
 
 ## Development
 
@@ -55,4 +51,4 @@ MIT (see `LICENSE`)
 
 [minikube]: https://github.com/kubernetes/minikube
 [gin]: https://github.com/codegangsta/gin
-[yarn]: TODO: add URL
+[yarn]: https://yarnpkg.com/
