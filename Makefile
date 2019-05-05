@@ -37,7 +37,7 @@ podstalk: *.go
 	go build -o $(NAME) ./cmd/$(NAME)
 
 clean:
-	rm -f $(NAME) gin-bin
+	rm -rf $(NAME) gin-bin client/build/
 
 Dockerfile.arm64: Dockerfile
 	sed -e 's|amd64|arm64|' Dockerfile > Dockerfile.arm64
@@ -47,4 +47,7 @@ dev-server:
 dev-client:
 	cd client && yarn start
 
-.PHONY: test image clean push dev-server dev-client
+client:
+	cd client && yarn build
+
+.PHONY: test image clean push dev-server dev-client client

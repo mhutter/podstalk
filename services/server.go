@@ -53,8 +53,14 @@ func NewServer(addr string, reg Registry) *Server {
 		clients: make(clients),
 	}
 
-	r.HandleFunc("/api/pods", s.ListPods)
-	r.HandleFunc("/api/ws", s.HandleSocket)
+	api := mux.NewRouter()
+	api.HandleFunc("/api/pods", s.ListPods)
+	api.HandleFunc("/api/ws", s.HandleSocket)
+
+	r.PathPrefix("/api").Handler(api)
+	r.PathPrefix("/").
+		Handler(http.FileServer(http.Dir("public"))).
+		Methods("GET")
 
 	return s
 }

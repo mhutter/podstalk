@@ -2,6 +2,16 @@
 import React, { Component } from 'react'
 import Pod from './Pod'
 
+const wsURL = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    return 'ws://localhost:3001/api/ws'
+  }
+
+  const url = new URL('/api/ws', window.location.href)
+  url.protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
+  return url.href
+}
+
 class PodList extends Component {
   constructor (props) {
     super(props)
@@ -32,7 +42,7 @@ class PodList extends Component {
   }
 
   connect () {
-    const ws = new WebSocket('ws://localhost:8080/api/ws')
+    const ws = new WebSocket(wsURL())
 
     // After opening a new connection, we'll get ADDED events for all
     // existing pods. However, we may have missed some DELETED events so
