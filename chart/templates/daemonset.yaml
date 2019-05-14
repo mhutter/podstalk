@@ -5,6 +5,7 @@ kind: DaemonSet
 metadata:
   name: {{ include "podstalk.fullname" . }}
   labels:
+    app: {{ include "podstalk.name" . }}
     app.kubernetes.io/name: {{ include "podstalk.name" . }}
     helm.sh/chart: {{ include "podstalk.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
