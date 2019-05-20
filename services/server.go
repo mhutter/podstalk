@@ -121,18 +121,7 @@ func (s *Server) HandleSocket(w http.ResponseWriter, r *http.Request) {
 	s.clients[conn] = &sync.Mutex{}
 
 	// Listen on the connection until it is closed
-	for {
-		if _, _, err := conn.NextReader(); err != nil {
-			if err2, ok := err.(*websocket.CloseError); ok {
-				if err2.Code == websocket.CloseGoingAway ||
-					err2.Code == websocket.CloseNormalClosure {
-					// normal close codes, don't care
-					break
-				}
-			}
-
-			log.Println("Client error:", err)
-		}
+	for _, _, err := conn.NextReader(); err == nil; {
 	}
 
 	delete(s.clients, conn)
