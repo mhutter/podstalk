@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -45,10 +44,9 @@ func getKubeconfig() string {
 
 	if home, err := os.UserHomeDir(); err == nil {
 		kcPath := filepath.Join(home, ".kube", "config")
-		if _, err := os.Stat(kcPath); err != nil {
-			log.Fatalln("Could not determine KUBECONFIG")
+		if _, err := os.Stat(kcPath); err == nil {
+			return kcPath
 		}
-		return kcPath
 	}
 
 	return ""
