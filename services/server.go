@@ -142,7 +142,7 @@ func (s *Server) broadcast() {
 func publish(e *podstalk.Event, c *websocket.Conn, lock *sync.Mutex) {
 	lock.Lock()
 	defer lock.Unlock()
-	if err := c.WriteJSON(e); err != nil {
+	if err := c.WriteJSON(e); err != nil && err != websocket.ErrCloseSent {
 		log.Println("Error sending event:", err)
 	}
 }
