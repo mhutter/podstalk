@@ -22,6 +22,7 @@ type Watcher struct {
 	Events    chan *podstalk.Event
 	namespace string
 	pods      watch.Interface
+	stopped   bool
 }
 
 // NewWatcher returns a new, configured Watcher
@@ -54,8 +55,10 @@ func (w *Watcher) start() {
 	log.Println("Watcher ready")
 
 	// start actually watching for events
-	for e := range w.pods.ResultChan() {
-		w.handleEvent(e)
+	for !w.stopped {
+		for e := range w.pods.ResultChan() {
+			w.handleEvent(e)
+		}
 	}
 	log.Println("Watcher finished")
 }
@@ -63,7 +66,11 @@ func (w *Watcher) start() {
 // Stop stops the watcher and closes the events chan, causing listeners
 // to exit aswell
 func (w *Watcher) Stop() {
+	w.stopped = true
+
 	w.pods.Stop()
+	<-w.pods.ResultChan()
+
 	close(w.Events)
 	log.Println("Watcher stopped")
 }
