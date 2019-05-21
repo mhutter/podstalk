@@ -57,6 +57,7 @@ func (w *Watcher) start() {
 	for e := range w.pods.ResultChan() {
 		w.handleEvent(e)
 	}
+	log.Println("Watcher finished")
 }
 
 // Stop stops the watcher and closes the events chan, causing listeners
